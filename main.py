@@ -10,7 +10,7 @@ class DomainRequest(BaseModel):
 
 @app.post("/analyze")
 def analyze_domain(request: DomainRequest):
-    print(f"🔹 1. Received Request for: {request.domain}")
+    print(f"Received Request for: {request.domain}")
 
     
     # If running in Docker, we will pass "http://host.docker.internal:11434"
@@ -34,17 +34,26 @@ def analyze_domain(request: DomainRequest):
         print("Response Received")
         response_json = response.json()
         raw_output = response_json.get("response", "")
-        
-        verdict = "Unknown"
-        if "SUSPICIOUS" in raw_output.upper():
+        clean_output = raw_output.upper()
+        verdict = "UNKNOWN"
+        if "VERDICT: SUSPICIOUS" in clean_output:
             verdict = "SUSPICIOUS"
-        elif "SAFE" in raw_output.upper():
+        elif "VERDICT: SAFE" in clean_output:
             verdict = "SAFE"
             
+        # 3. Fallback: If model forgot "Verdict:", looks for keywords but strictly
+        else:
+            # If it says "Safe" but NOT "Suspicious", it's Safe
+            if "SAFE" in clean_output and "SUSPICIOUS" not in clean_output:
+                verdict = "SAFE"
+            # If it says "Suspicious", it's Suspicious
+            elif "SUSPICIOUS" in clean_output:
+                verdict = "SUSPICIOUS"
+            else:
+                verdict = "Unknown"
         return {
             "domain": request.domain,
-            "verdict": verdict,
-            "raw_analysis": raw_output
+            "analysis": raw_output
         }
 
     except Exception as e:
