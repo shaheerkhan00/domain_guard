@@ -1,0 +1,27 @@
+FROM ./domainguard.gguf
+
+# 1. Temperature 0.1 makes it strict/factual
+PARAMETER temperature 0.1
+
+# 2. IMPORTANT: Context window size
+PARAMETER num_ctx 2048
+
+# 3. CRITICAL: Stop the model if it tries to start a new instruction
+# This prevents it from rambling on with "Majestic Million..." etc.
+PARAMETER stop "### Instruction:"
+PARAMETER stop "### Input:"
+
+# 4. The Template forces the input into the exact training format
+TEMPLATE """### Instruction:
+Analyze the following domain name and determine if it is Safe or Suspicious. Explain your reasoning.
+
+### Input:
+{{ .Prompt }}
+
+### Response:
+"""
+
+SYSTEM """
+You are DomainGuard. You only analyze domains. 
+If the input is not a domain, reply with "Please provide a valid domain."
+"""

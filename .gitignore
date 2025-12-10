@@ -1,0 +1,10 @@
+# Ignore the massive model file (Users download this from Hugging Face)
+*.gguf
+
+# Ignore Python cache and virtual environments
+__pycache__/
+venv/
+.env
+
+# Ignore OS generated files
+.DS_Store
