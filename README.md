@@ -23,10 +23,16 @@
 ```mermaid
 graph LR
     User[Client / Dashboard] -->|POST /analyze| API[FastAPI Container]
-    API -->|Prompt| LLM[Ollama (Host Machine)]
+    API -->|Prompt| LLM[Ollama Host Machine]
     LLM -->|Verdict| API
     API -->|JSON Response| User
 ```
+
+**Flow:**
+1. Client sends domain analysis request to FastAPI container
+2. FastAPI forwards the domain to Ollama running on host machine
+3. Fine-tuned Llama model analyzes the domain and returns verdict
+4. FastAPI parses response and returns JSON to client
 
 ---
 
